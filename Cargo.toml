@@ -10,7 +10,7 @@ documentation = "https://docs.rs/xgboost"
 readme = "README.md"
 
 [dependencies]
-xgboost-sys = { git = "https://github.com/davidmanzanares/rust-xgboost.git", branch = "0.1.4-patched-bindgen" }
+xgboost-sys = { git = "https://github.com/davidmanzanares/rust-xgboost.git", branch = "dev" }
 #xgboost-sys = { path = "/home/david/code/rust-xgboost/xgboost-sys"}
 libc = "0.2"
 derive_builder = "0.5"
