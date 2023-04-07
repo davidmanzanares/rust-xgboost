@@ -1,6 +1,7 @@
 use std::{slice, ffi, ptr, path::Path};
 use libc::{c_uint, c_float};
 use std::os::unix::ffi::OsStrExt;
+use std::convert::TryInto;
 
 use xgboost_sys;
 
@@ -128,12 +129,12 @@ impl DMatrix {
         let mut handle = ptr::null_mut();
         let indices: Vec<u32> = indices.iter().map(|x| *x as u32).collect();
         let num_cols = num_cols.unwrap_or(0); // infer from data if 0
-        xgb_call!(xgboost_sys::XGDMatrixCreateFromCSREx(indptr.as_ptr(),
+        xgb_call!(xgboost_sys::XGDMatrixCreateFromCSREx(indptr.as_ptr() as *const u64,
                                                         indices.as_ptr(),
                                                         data.as_ptr(),
-                                                        indptr.len(),
-                                                        data.len(),
-                                                        num_cols,
+                                                        indptr.len() as u64,
+                                                        data.len() as u64,
+                                                        num_cols as u64,
                                                         &mut handle))?;
         Ok(DMatrix::new(handle)?)
     }
@@ -151,12 +152,12 @@ impl DMatrix {
         let mut handle = ptr::null_mut();
         let indices: Vec<u32> = indices.iter().map(|x| *x as u32).collect();
         let num_rows = num_rows.unwrap_or(0); // infer from data if 0
-        xgb_call!(xgboost_sys::XGDMatrixCreateFromCSCEx(indptr.as_ptr(),
+        xgb_call!(xgboost_sys::XGDMatrixCreateFromCSCEx(indptr.as_ptr() as *const u64,
                                                         indices.as_ptr(),
                                                         data.as_ptr(),
-                                                        indptr.len(),
-                                                        data.len(),
-                                                        num_rows,
+                                                        indptr.len() as u64,
+                                                        data.len() as u64,
+                                                        num_rows as u64,
                                                         &mut handle))?;
         Ok(DMatrix::new(handle)?)
     }
