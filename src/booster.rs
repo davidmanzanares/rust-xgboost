@@ -378,8 +378,12 @@ impl Booster {
         };
 
         assert!(!out_result.is_null());
-        let data = unsafe { slice::from_raw_parts(out_result, out_len as usize).to_vec() };
-        Ok(data)
+        let data = unsafe { slice::from_raw_parts(out_result, out_len as usize).to_vec() }; // TODO COPY
+        let mut copy = Vec::new();
+        for x in data{
+            copy.push(x);
+        }
+        Ok(copy)
     }
 
     /// Predict margin for given data.
