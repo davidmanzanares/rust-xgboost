@@ -1,5 +1,5 @@
 use libc;
-use std::{fs::File, fmt, slice, ffi, ptr};
+use std::{fs::File, fmt, slice, ffi, ptr, convert::TryInto};
 use std::str::FromStr;
 use std::io::{self, Write, BufReader, BufRead};
 use std::collections::{BTreeMap, HashMap};
@@ -146,9 +146,9 @@ impl Booster {
         // load distributed code checkpoint from rabit
         let version = bst.load_rabit_checkpoint()?;
         debug!("Loaded Rabit checkpoint: version={}", version);
-        assert!(unsafe { xgboost_sys::RabitGetWorldSize() != 1 || version == 0 });
+        // assert!(unsafe { xgboost_sys::RabitGetWorldSize() != 1 || version == 0 });
 
-        let _rank = unsafe { xgboost_sys::RabitGetRank() };
+        // let _rank = unsafe { xgboost_sys::RabitGetRank() };
         let start_iteration = version / 2;
         //let mut nboost = start_iteration;
 
@@ -166,7 +166,7 @@ impl Booster {
                 bst.save_rabit_checkpoint()?;
             }
 
-            assert!(unsafe { xgboost_sys::RabitGetWorldSize() == 1 || version == xgboost_sys::RabitVersionNumber() });
+            // assert!(unsafe { xgboost_sys::RabitGetWorldSize() == 1 || version == xgboost_sys::RabitVersionNumber() });
 
             //nboost += 1;
 
@@ -357,12 +357,25 @@ impl Booster {
         let ntree_limit = 0;
         let mut out_len = 0;
         let mut out_result = ptr::null();
-        xgb_call!(xgboost_sys::XGBoosterPredict(self.handle,
-                                                dmat.handle,
-                                                option_mask,
-                                                ntree_limit,
-                                                &mut out_len,
-                                                &mut out_result))?;
+        let mut out_shape: *const u64= ptr::null();
+
+        let config_str = r#"{
+            "type": 0,
+            "training": false,
+            "iteration_begin": 0,
+            "iteration_end": 0,
+            "strict_shape": true
+        }"#;
+        let config = ffi::CString::new(config_str).unwrap();
+
+        let ret = unsafe{
+             (xgboost_sys::XGBoosterPredictFromDMatrix(self.handle,
+                dmat.handle,
+                config.as_ptr(),
+                &mut out_shape,
+                &mut out_len,
+                &mut out_result))
+        };
 
         assert!(!out_result.is_null());
         let data = unsafe { slice::from_raw_parts(out_result, out_len as usize).to_vec() };
@@ -381,6 +394,7 @@ impl Booster {
                                                 dmat.handle,
                                                 option_mask,
                                                 ntree_limit,
+                                                0,
                                                 &mut out_len,
                                                 &mut out_result))?;
         assert!(!out_result.is_null());
@@ -403,6 +417,7 @@ impl Booster {
                                                 dmat.handle,
                                                 option_mask,
                                                 ntree_limit,
+                                                0,
                                                 &mut out_len,
                                                 &mut out_result))?;
         assert!(!out_result.is_null());
@@ -429,6 +444,7 @@ impl Booster {
                                                 dmat.handle,
                                                 option_mask,
                                                 ntree_limit,
+                                                0,
                                                 &mut out_len,
                                                 &mut out_result))?;
         assert!(!out_result.is_null());
@@ -456,6 +472,7 @@ impl Booster {
                                                 dmat.handle,
                                                 option_mask,
                                                 ntree_limit,
+                                                0,
                                                 &mut out_len,
                                                 &mut out_result))?;
         assert!(!out_result.is_null());

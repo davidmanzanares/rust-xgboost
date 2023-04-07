@@ -3,7 +3,6 @@ name = "xgboost-sys"
 version = "0.1.2"
 authors = ["Dave Challis <dave@suicas.net>"]
 links = "xgboost"
-build = "build.rs"
 license = "MIT"
 repository = "https://github.com/davechallis/rust-xgboost"
 description = "Native bindings to the xgboost library"
@@ -13,4 +12,6 @@ readme = "README.md"
 libc = "0.2"
 
 [build-dependencies]
-bindgen = "0.60.1"
+bindgen = "0.64.0"
+cmake = "0.1.49"
+cc = "1.0.79"

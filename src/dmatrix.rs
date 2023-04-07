@@ -111,7 +111,7 @@ impl DMatrix {
         xgb_call!(xgboost_sys::XGDMatrixCreateFromMat(data.as_ptr(),
                                                       num_rows as xgboost_sys::bst_ulong,
                                                       (data.len() / num_rows) as xgboost_sys::bst_ulong,
-                                                      0.0, // TODO: can values be missing here?
+                                                      std::f32::NAN,
                                                       &mut handle))?;
         Ok(DMatrix::new(handle)?)
     }
@@ -129,12 +129,12 @@ impl DMatrix {
         let mut handle = ptr::null_mut();
         let indices: Vec<u32> = indices.iter().map(|x| *x as u32).collect();
         let num_cols = num_cols.unwrap_or(0); // infer from data if 0
-        xgb_call!(xgboost_sys::XGDMatrixCreateFromCSREx(indptr.as_ptr() as *const u64,
+        xgb_call!(xgboost_sys::XGDMatrixCreateFromCSREx(indptr.as_ptr() as *const usize,
                                                         indices.as_ptr(),
                                                         data.as_ptr(),
-                                                        indptr.len() as u64,
-                                                        data.len() as u64,
-                                                        num_cols as u64,
+                                                        indptr.len() as usize,
+                                                        data.len() as usize,
+                                                        num_cols as usize,
                                                         &mut handle))?;
         Ok(DMatrix::new(handle)?)
     }
@@ -152,12 +152,12 @@ impl DMatrix {
         let mut handle = ptr::null_mut();
         let indices: Vec<u32> = indices.iter().map(|x| *x as u32).collect();
         let num_rows = num_rows.unwrap_or(0); // infer from data if 0
-        xgb_call!(xgboost_sys::XGDMatrixCreateFromCSCEx(indptr.as_ptr() as *const u64,
+        xgb_call!(xgboost_sys::XGDMatrixCreateFromCSCEx(indptr.as_ptr() as *const usize,
                                                         indices.as_ptr(),
                                                         data.as_ptr(),
-                                                        indptr.len() as u64,
-                                                        data.len() as u64,
-                                                        num_rows as u64,
+                                                        indptr.len() as usize,
+                                                        data.len() as usize,
+                                                        num_rows as usize,
                                                         &mut handle))?;
         Ok(DMatrix::new(handle)?)
     }
