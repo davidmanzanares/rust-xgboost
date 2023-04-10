@@ -583,7 +583,9 @@ impl Booster {
 
 impl Drop for Booster {
     fn drop(&mut self) {
-        xgb_call!(xgboost_sys::XGBoosterFree(self.handle)).unwrap();
+        // println!("dropping booster {:?}", std::thread::current().id());
+        // xgb_call!(xgboost_sys::XGBoosterFree(self.handle)).unwrap();
+        // println!("dropeed booster");
     }
 }
 
